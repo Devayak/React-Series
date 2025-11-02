@@ -1,15 +1,27 @@
+
 import React, { useState } from "react";
+import Input from "./CustomFormField/Input";
+import Select from "./CustomFormField/Select";
 
 const Expense = ({setdatas}) => {
   const [expense,setexpense]=useState(
     {
       title:'',
       category:'',
-      amount:''
+      amount:'',
+      email:''
     }
   )
   const[error,setError]=useState('')
-// console.log(expense);
+
+  //! check validation logic improvement
+  const validationConfig={
+    title:[{required:true,message:'Title is required'},{minLength:5,message:'Title should be min 5 char'}],
+    category:[{required:true,message:'Select category'}],
+    amount:[{required:true,message:'Amount is rwquired'}],
+    email:[{required:true,message:'Email is required'},{regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,message:'Invalid email format'}]
+  }
+
 
 
 
@@ -22,89 +34,74 @@ const handleChange=(e)=>{
     setError({})
   }
 
+const handleValidation=(formData)=>{
+  const errorData={}
 
-  const HandleError=( formData)=>{
-    const errorData={}
-    if(!formData.title){
-      errorData.title='Title is required'
-    }
-    if(!formData.category){
-      errorData.category='select category'
-    }
-    if(!formData.amount){
-      errorData.amount='Amount is required'
-    }
-    setError(errorData)
-    return(errorData)
+  Object.entries(formData).forEach(([key,value])=>{
 
-  }
+  validationConfig[key].some((ruke)=>{
+    if(ruke.required && !value){
+      errorData[key]=ruke.message
+      return true
+    }
+
+    if(ruke.minLength && value.length<ruke.minLength){
+      errorData[key]=ruke.message
+        return true
+    }
+
+    if(ruke.regex && !ruke.regex.test(value)){
+      errorData[key]=ruke.message
+      return true
+    }
+  })
+  })
+  setError(errorData)
+  return(errorData)
+
+}
+ 
 console.log(expense);
 
   const handleSubmit=(e)=>{
     e.preventDefault()
-    const validation=HandleError(expense)
-    console.log(validation);
+    const validation=handleValidation(expense)
+    
     console.log(Object.keys(validation));
     if(Object.keys(validation).length) return
 
-    //!using js mehod or logic
-    // console.log(e.target);
-    // console.log(getFormData(e.target));
+    
 
 //?add the list by using add button to the form
 
-// 
-// console.log(expenses);
+
 setdatas((prevData)=>[...prevData,{...expense,id:crypto.randomUUID()}])
-// e.target.reset()//! this will not work
+
 setexpense({
   title:'',
   category:'',
-  amount:''
+  amount:'',
+  email:''
 })
-// setdatas((prevstate) => [...prevstate, { ...getFormData(e.target), id: crypto.randomUUID() }])  //!using js mehod or logic
+
 
 }
 
   
 
-  // const getFormData=(form)=>{
-  //   const formData = new FormData(form);
-  //   const data={}
-  //   for (const [key,value] of formData) {
-  // data[key]=value
-  //   }
-  //   return data
-
-  // }
+ 
 
 
   return (
     <div>
       <form className="expense-form" onSubmit={handleSubmit}>
-        <div className="input-container">
-          <label htmlFor="title">Title</label>
-          <input id="title" name="title" value={expense.title}  onChange={handleChange}/>
-          <label className="text-red-400 absolute top-[3.5em] ">{error.title}</label>
-        </div>
-        <div className="input-container">
-          <label htmlFor="category" className="mt-3">Category</label>
-          <select style={{padding:'6px',marginBottom:'10px'}} name="category" value={expense.category} onChange={handleChange}>
-                  <option value="" style={{margin:'20px'}}>All</option>
-                  <option value="grocery">Grocery</option>
-                  <option value="clothes">Clothes</option>
-                  <option value="bills">Bills</option>
-                  <option value="education">Education</option>
-                  <option value="medicine">Medicine</option>
-                </select>
-                  <label className="text-red-400 absolute top-[5em] ">{error.category}</label>
-          {/* <input id="category" /> */}
-        </div>
-        <div className="input-container">
-          <label htmlFor="amount">Amount</label>
-          <input id="amount" name="amount" value={expense.amount} onChange={handleChange}/>
-            <label className="text-red-400 absolute top-[3.5em] ">{error.amount}</label>
-        </div>
+        
+        <Input label='title' id='title' name='title' value={expense.title} onChange={handleChange} error={error.title} />
+     
+        <Select id='category' label='Category' name='category' value={expense.category}onChange={handleChange} options={['Grocery','Milk','Bill','Education','Medicine']} defaultoption='Select Category' error={error.category}/>
+
+        <Input label='Amount' id='title' name='amount' value={expense.amount} onChange={handleChange} error={error.amount} />
+        <Input label='Email' id='email' name='email' value={expense.email} onChange={handleChange} error={error.email} />
         <button className="add-btn"  style={{marginTop:'20px'}}>Add</button>
       </form>
     </div>

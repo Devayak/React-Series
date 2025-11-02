@@ -49,6 +49,9 @@ const ExpenseTable = ({data}) => {
               </th>
             </tr>
           </thead>
+
+         
+          
         <tbody>
   {data.map((item)=>{
     return(
@@ -64,7 +67,9 @@ const ExpenseTable = ({data}) => {
           <th></th>
           <th>{total()}</th>
         </tr>
+  
 </tbody>
+
         </table>
     </div>
   )
